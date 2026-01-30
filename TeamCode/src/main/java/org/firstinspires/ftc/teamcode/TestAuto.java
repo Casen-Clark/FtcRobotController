@@ -5,13 +5,13 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.pedropathing.util.Timer;
-
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
+@Autonomous
 public class TestAuto extends OpMode {
     private Follower follower;
     private Timer pathTimer , opModeTimer;
@@ -98,7 +98,7 @@ public class TestAuto extends OpMode {
             case LAUNCH_SEQUENCE:
                 if(!follower.isBusy()){
                     launch();
-                    pathState = PathState.IN_SPIKE_1;
+                    transitionPathState(PathState.GT_SPIKE_1);
                 }
                 break;
         }
