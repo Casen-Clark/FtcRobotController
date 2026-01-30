@@ -60,10 +60,12 @@ public class TestAuto extends OpMode {
                 .addPath(new BezierLine(startPose, LaunchPoseExtraClose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), LaunchPoseExtraClose.getHeading())
                 .build();
+        /*
         launcExtraClose_spike1 = follower.pathBuilder()
                 .addPath(new BezierLine(LaunchPoseExtraClose, SpikeStart1))
                 .setLinearHeadingInterpolation(LaunchPoseExtraClose.getHeading(), SpikeStart1.getHeading())
                 .build();
+         */
 
     }
 
@@ -77,7 +79,7 @@ public class TestAuto extends OpMode {
                 transitionPathState(PathState.LAUNCH_SEQUENCE);
                 break;
             case GT_SPIKE_1:
-                follower.followPath(launcExtraClose_spike1, true);
+                //follower.followPath(launcExtraClose_spike1, true);
                 break;
             case INTAKE_SPIKE_1:
                 break;
