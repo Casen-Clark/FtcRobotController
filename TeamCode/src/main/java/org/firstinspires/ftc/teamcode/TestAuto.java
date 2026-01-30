@@ -125,12 +125,13 @@ public class TestAuto extends OpMode {
     public void loop() {
         follower.update();
         statePathUpdate();
-        telemetry.addLine("X: " + follower.getPose().getX()+ "     Y: " + follower.getPose().getY());;
+        telemetry.addLine("X: " + follower.getPose().getX());
+        telemetry.addLine("Y: " + follower.getPose().getY());
         telemetry.addLine("Path State: " + pathState);
         telemetry.addLine("Path Timer: " + pathTimer.getElapsedTimeSeconds());
         telemetry.addLine("Op Mode Timer: " + opModeTimer.getElapsedTimeSeconds());
         telemetry.addLine("Current Pose: " + follower.getPose());
-        telemetry.addLine("Current Velocity: " + follower.getVelocity());
+        //telemetry.addLine("Current Velocity: " + follower.getVelocity());
         telemetry.addLine("Current Heading: " + follower.getPose().getHeading());
         telemetry.update();
     }
