@@ -482,5 +482,7 @@ public class SampleAutoPath extends OpMode{
         telemetry.addData("Heading", follower.getPose().getHeading());
         telemetry.addData("Path Time", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("Launcher State", launcherState);
+        telemetry.addData("heading error: ", follower.getHeadingError());
+        telemetry.addData("drive error: ", follower.getDriveError());
     }
 }
