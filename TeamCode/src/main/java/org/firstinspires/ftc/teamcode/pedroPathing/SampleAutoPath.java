@@ -337,7 +337,9 @@ public class SampleAutoPath extends OpMode{
                 break;
 
             case STARTPICKUPSPIKE1_ENDPICKUPSPIKE1:
+                follower.setMaxPowerScaling(0.35);
                 if (!pathStarted) {
+
                     follower.followPath(startPickupSpike1_EndPickupSpike1, true);
                     pathStarted = true;
                 }
@@ -349,7 +351,9 @@ public class SampleAutoPath extends OpMode{
                 break;
 
             case ENDPICKUPSPIKE1_LAUNCHPOSE:
+
                 if (!pathStarted) {
+                    follower.setMaxPowerScaling(1);
                     follower.followPath(endPickupSpike1_launchPose, true);
                     pathStarted = true;
                 }
@@ -377,6 +381,7 @@ public class SampleAutoPath extends OpMode{
 
             case STARTPICKUPSPIKE2_ENDPICKUPSPIKE2:
                 if (!pathStarted) {
+                    follower.setMaxPowerScaling(0.35);
                     follower.followPath(startPickupSpike2_EndPickupSpike2, true);
                     pathStarted = true;
                 }
@@ -389,6 +394,7 @@ public class SampleAutoPath extends OpMode{
 
             case ENDPICKUPSPIKE2_LAUNCHPOSE:
                 if (!pathStarted) {
+                    follower.setMaxPowerScaling(1);
                     follower.followPath(endPickupSpike2_LaunchPose, true);
                     pathStarted = true;
                 }
@@ -416,6 +422,7 @@ public class SampleAutoPath extends OpMode{
 
             case STARTPICKUPSPIKE3_ENDPICKUPSPIKE3:
                 if (!pathStarted) {
+                    follower.setMaxPowerScaling(0.35);
                     follower.followPath(startPickupSpike3_EndPickupSPike3, true);
                     pathStarted = true;
                 }
@@ -428,6 +435,7 @@ public class SampleAutoPath extends OpMode{
 
             case ENDPICKUPSPIKE3_LEAVELAUNCH:
                 if (!pathStarted) {
+                    follower.setMaxPowerScaling(1);
                     follower.followPath(endPickupSpike3_LeaveLaunch, true);
                     pathStarted = true;
                 }
