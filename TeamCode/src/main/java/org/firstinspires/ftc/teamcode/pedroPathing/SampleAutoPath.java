@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-//MOTOR SETUP - 25
+//MOTOR SETUP - 24
 //LAUNCHER LOGIC - 72
 //INTAKE LOGIC - 165
 //PATHING STUFF - 185
