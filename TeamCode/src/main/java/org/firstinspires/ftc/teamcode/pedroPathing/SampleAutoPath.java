@@ -51,7 +51,7 @@ public class SampleAutoPath extends OpMode{
         Launcher.setDirection(DcMotor.Direction.FORWARD);
         Launcher2.setDirection(DcMotor.Direction.REVERSE);
         indexer.setDirection(DcMotor.Direction.FORWARD);
-        IntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        IntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         LeftIntake.setDirection(CRServo.Direction.FORWARD);
         RightIntake.setDirection(CRServo.Direction.REVERSE);
         LeftBandintake.setDirection(CRServo.Direction.FORWARD);
@@ -157,17 +157,6 @@ public class SampleAutoPath extends OpMode{
         return launcherState == LauncherState.DONE;
     }
 
-    //----------------Intake Logic----------------------------\\
-
-    public void startIntake() {
-        IntakeMotor.setVelocity(600);
-        LeftIntake.setPower(1);
-        RightIntake.setPower(1);
-    }
-
-    private Follower follower;
-    private Timer pathTimer, opModeTimer;
-
     public enum LauncherState {
         IDLE,
         WAIT_FOR_FLYWHEEL,
@@ -176,6 +165,42 @@ public class SampleAutoPath extends OpMode{
         CLOSING,
         DONE
     }
+
+    //----------------Intake Logic----------------------------\\
+
+    public void startIntake() {
+        IntakeMotor.setVelocity(600);
+        LeftIntake.setPower(1);
+        RightIntake.setPower(1);
+    }
+
+    void updateIntake() {
+        boolean intakeActive =
+                pathState == PathState.STARTPICKUPSPIKE1_ENDPICKUPSPIKE1 ||
+                        pathState == PathState.STARTPICKUPSPIKE2_ENDPICKUPSPIKE2 ||
+                        pathState == PathState.STARTPICKUPSPIKE3_ENDPICKUPSPIKE3;
+
+        if (intakeActive) {
+            // Turn on intake motors
+            IntakeMotor.setVelocity(900);
+            indexer.setPower(1);
+            LeftIntake.setPower(1);
+            RightIntake.setPower(1);
+            LeftBandintake.setPower(1);
+            RightBandintake.setPower(1);
+        } else {
+            // Stop intake motors
+            IntakeMotor.setPower(0);
+            LeftIntake.setPower(0);
+            RightIntake.setPower(0);
+            LeftBandintake.setPower(0);
+            RightBandintake.setPower(0);
+        }
+    }
+
+
+    private Follower follower;
+    private Timer pathTimer, opModeTimer;
 
     //=======================================PATHING STUFF========================================\\
     public enum PathState {
@@ -449,6 +474,7 @@ public class SampleAutoPath extends OpMode{
         follower.update();
         updateLauncher();
         statePathUpdate();
+        updateIntake();
 
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("X", follower.getPose().getX());
