@@ -66,6 +66,10 @@ public class SampleAutoPath extends OpMode{
         Launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+                Launcher.setVelocityPIDFCoefficients(5, 2, 3, 4);
+                Launcher2.setVelocityPIDFCoefficients(5, 2, 3, 4);
+
     }
 
     //-----------------Launcher Logic-------------------------\\
@@ -139,8 +143,8 @@ public class SampleAutoPath extends OpMode{
     }
 
     void startFlywheel() {
-        Launcher.setVelocity(1100);
-        Launcher2.setVelocity(1100);
+        Launcher.setVelocity(1000);
+        Launcher2.setVelocity(1000);
     }
 
     void stopFlywheel() {
@@ -149,8 +153,8 @@ public class SampleAutoPath extends OpMode{
     }
 
     boolean flywheelAtSpeed() {
-        return Math.abs(Launcher.getVelocity() - 1100) < 50
-                && Math.abs(Launcher2.getVelocity() - 1100) < 50;
+        return Math.abs(Launcher.getVelocity() - 1000) < 50
+                && Math.abs(Launcher2.getVelocity() - 1000) < 50;
     }
 
     boolean launchComplete() {
@@ -231,7 +235,7 @@ public class SampleAutoPath extends OpMode{
 
     private final Pose startPose = new Pose(21.22077922077922, 121.84415584415584, Math.toRadians(135));//START POSE
     private final Pose launchPose = new Pose(55.37662337662337, 88.0909090909091, Math.toRadians(135));
-    private final Pose startPickupSpike1 = new Pose(43.97258687258688, 82.68725868, Math.toRadians(0));//MOVE TO PICKUP 1ST SPIKE
+    private final Pose startPickupSpike1 = new Pose(45.97258687258688, 82.68725868, Math.toRadians(0));//MOVE TO PICKUP 1ST SPIKE
     private final Pose endPickupSpike1 = new Pose(17.470656370656375, 82.68725868, Math.toRadians(0));//PICKUP 1ST SPIKE
     private final Pose startPickupSpike2 = new Pose(42.06956521739129, 58.06956521739131, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
     private final Pose endPickupSpike2 = new Pose(17.6868725868725965, 57.16521739130434, Math.toRadians(0));//PICKUP 2ND SPIKE
