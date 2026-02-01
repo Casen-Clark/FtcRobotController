@@ -4,9 +4,9 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 //PATHING STUFF - 185
 
 @Autonomous
-public class SampleAutoPath extends OpMode{
+public class RedAuto extends OpMode{
 
     //==========Motor Stuffs=========\\
     DcMotorEx Launcher;
@@ -233,15 +233,33 @@ public class SampleAutoPath extends OpMode{
 
     PathState pathState;
 
-    private final Pose startPose = new Pose(21.22077922077922, 121.84415584415584, Math.toRadians(135));//START POSE
-    private final Pose launchPose = new Pose(55.37662337662337, 88.0909090909091, Math.toRadians(135));
-    private final Pose startPickupSpike1 = new Pose(45.97258687258688, 82.68725868, Math.toRadians(0));//MOVE TO PICKUP 1ST SPIKE
-    private final Pose endPickupSpike1 = new Pose(17.470656370656375, 82.68725868, Math.toRadians(0));//PICKUP 1ST SPIKE
-    private final Pose startPickupSpike2 = new Pose(42.06956521739129, 58.06956521739131, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike2 = new Pose(17.6868725868725965, 57.16521739130434, Math.toRadians(0));//PICKUP 2ND SPIKE
-    private final Pose startPickupSpike3 = new Pose(40.66086956521737, 34.8782608695652, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike3 = new Pose(17.686872586872596, 34.42857142857139, Math.toRadians(0));//PICKUP 2ND SPIKE
-    private final Pose endPose = new Pose(30.99961389961389, 71.56756756756754, Math.toRadians(90));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
+    private final Pose startPose =
+            new Pose(144 - 21.22077922077922, 121.84415584415584, Math.toRadians(45));
+
+    private final Pose launchPose =
+            new Pose(144 - 55.37662337662337, 88.0909090909091, Math.toRadians(45));
+
+    private final Pose startPickupSpike1 =
+            new Pose(144 - 45.97258687258688, 82.68725868, Math.toRadians(180));
+
+    private final Pose endPickupSpike1 =
+            new Pose(144 - 17.470656370656375, 82.68725868, Math.toRadians(180));
+
+    private final Pose startPickupSpike2 =
+            new Pose(144 - 42.06956521739129, 58.06956521739131, Math.toRadians(180));
+
+    private final Pose endPickupSpike2 =
+            new Pose(144 - 17.6868725868725965, 57.16521739130434, Math.toRadians(180));
+
+    private final Pose startPickupSpike3 =
+            new Pose(144 - 40.66086956521737, 34.8782608695652, Math.toRadians(180));
+
+    private final Pose endPickupSpike3 =
+            new Pose(144 - 17.686872586872596, 34.42857142857139, Math.toRadians(180));
+
+    private final Pose endPose =
+            new Pose(144 - 30.99961389961389, 71.56756756756754, Math.toRadians(90));
+
 
     private PathChain
             startPose_LaunchPose,
