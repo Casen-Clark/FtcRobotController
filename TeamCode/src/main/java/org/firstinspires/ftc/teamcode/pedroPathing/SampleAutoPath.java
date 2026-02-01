@@ -54,8 +54,8 @@ public class SampleAutoPath extends OpMode{
         IntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         LeftIntake.setDirection(CRServo.Direction.FORWARD);
         RightIntake.setDirection(CRServo.Direction.REVERSE);
-        LeftBandintake.setDirection(CRServo.Direction.FORWARD);
-        RightBandintake.setDirection(CRServo.Direction.REVERSE);
+        LeftBandintake.setDirection(CRServo.Direction.REVERSE);
+        RightBandintake.setDirection(CRServo.Direction.FORWARD);
 
         //Motors run mode
         Launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -115,7 +115,7 @@ public class SampleAutoPath extends OpMode{
 
             case FEEDING:
                 indexer.setPower(1);
-                if (launcherTimer.getElapsedTimeSeconds() > 3.0) {
+                if (launcherTimer.getElapsedTimeSeconds() > 2.0) {
                     indexer.setPower(0);
                     launcherState = LauncherState.CLOSING;
                 }
@@ -175,12 +175,21 @@ public class SampleAutoPath extends OpMode{
     }
 
     void updateIntake() {
-        boolean intakeActive =
-                pathState == PathState.STARTPICKUPSPIKE1_ENDPICKUPSPIKE1 ||
-                        pathState == PathState.STARTPICKUPSPIKE2_ENDPICKUPSPIKE2 ||
-                        pathState == PathState.STARTPICKUPSPIKE3_ENDPICKUPSPIKE3;
+        /*
+        ,
+        LAUNCHPOSE_STARTPICKUPSPIKE1,
+        STARTPICKUPSPIKE1_ENDPICKUPSPIKE1,
+        ENDPICKUPSPIKE1_LAUNCHPOSE,
+        LAUNCHPOSE_STARTPICKUPSPIKE2,
+        STARTPICKUPSPIKE2_ENDPICKUPSPIKE2,
+        ENDPICKUPSPIKE2_LAUNCHPOSE,
+        LAUNCHPOSE_STARTPICKUPSPIKE3,
+        STARTPICKUPSPIKE3_ENDPICKUPSPIKE3,
+        E
+        */
+        boolean intakeActive = pathState == PathState.STARTPOSE_LAUNCHPOSE || pathState == PathState.ENDPICKUPSPIKE3_ENDPOSE;
 
-        if (intakeActive) {
+        if (!intakeActive) {
             // Turn on intake motors
             IntakeMotor.setVelocity(900);
             indexer.setPower(1);
@@ -191,10 +200,12 @@ public class SampleAutoPath extends OpMode{
         } else {
             // Stop intake motors
             IntakeMotor.setPower(0);
+
             LeftIntake.setPower(0);
             RightIntake.setPower(0);
             LeftBandintake.setPower(0);
             RightBandintake.setPower(0);
+
         }
     }
 
@@ -213,20 +224,20 @@ public class SampleAutoPath extends OpMode{
         ENDPICKUPSPIKE2_LAUNCHPOSE,
         LAUNCHPOSE_STARTPICKUPSPIKE3,
         STARTPICKUPSPIKE3_ENDPICKUPSPIKE3,
-        ENDPICKUPSPIKE3_LEAVELAUNCH
+        ENDPICKUPSPIKE3_ENDPOSE
     }
 
     PathState pathState;
 
     private final Pose startPose = new Pose(21.22077922077922, 121.84415584415584, Math.toRadians(135));//START POSE
     private final Pose launchPose = new Pose(55.37662337662337, 88.0909090909091, Math.toRadians(135));
-    private final Pose startPickupSpike1 = new Pose(39.25217391304347, 86.24347826086958, Math.toRadians(15));//MOVE TO PICKUP 1ST SPIKE
-    private final Pose endPickupSpike1 = new Pose(16.869565217391294, 84.52173913043481, Math.toRadians(0));//PICKUP 1ST SPIKE
+    private final Pose startPickupSpike1 = new Pose(43.97258687258688, 82.68725868, Math.toRadians(0));//MOVE TO PICKUP 1ST SPIKE
+    private final Pose endPickupSpike1 = new Pose(17.470656370656375, 82.68725868, Math.toRadians(0));//PICKUP 1ST SPIKE
     private final Pose startPickupSpike2 = new Pose(42.06956521739129, 58.06956521739131, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike2 = new Pose(19.84347826086955, 59.16521739130434, Math.toRadians(0));//PICKUP 2ND SPIKE
-    private final Pose startPickupSpike3 = new Pose(40.66086956521737, 37.8782608695652, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike3 = new Pose(22.03478260869563, 35.37391304347825, Math.toRadians(0));//PICKUP 2ND SPIKE
-    private final Pose leaveLaunch = new Pose(53.808695652173895, 113.0086956521739, Math.toRadians(155));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
+    private final Pose endPickupSpike2 = new Pose(17.6868725868725965, 57.16521739130434, Math.toRadians(0));//PICKUP 2ND SPIKE
+    private final Pose startPickupSpike3 = new Pose(40.66086956521737, 34.8782608695652, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
+    private final Pose endPickupSpike3 = new Pose(17.686872586872596, 34.42857142857139, Math.toRadians(0));//PICKUP 2ND SPIKE
+    private final Pose endPose = new Pose(30.99961389961389, 71.56756756756754, Math.toRadians(90));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
 
     private PathChain
             startPose_LaunchPose,
@@ -238,7 +249,7 @@ public class SampleAutoPath extends OpMode{
             endPickupSpike2_LaunchPose,
             launchPose_StartPickupSPike3,
             startPickupSpike3_EndPickupSPike3,
-            endPickupSpike3_LeaveLaunch;
+            endPickupSpike3_endPose;
 
     public void buildPaths() {
 
@@ -296,10 +307,10 @@ public class SampleAutoPath extends OpMode{
                 .setLinearHeadingInterpolation(startPickupSpike3.getHeading(), endPickupSpike3.getHeading())
                 .build();
 
-        // Move to final launch and leave position
-        endPickupSpike3_LeaveLaunch = follower.pathBuilder()
-                .addPath(new BezierLine(endPickupSpike3, leaveLaunch))
-                .setLinearHeadingInterpolation(endPickupSpike3.getHeading(), leaveLaunch.getHeading())
+        // Move to final launch and end pose
+        endPickupSpike3_endPose = follower.pathBuilder()
+                .addPath(new BezierLine(endPickupSpike3, endPose))
+                .setLinearHeadingInterpolation(endPickupSpike3.getHeading(), endPose.getHeading())
                 .build();
     }
 
@@ -351,9 +362,9 @@ public class SampleAutoPath extends OpMode{
                 break;
 
             case ENDPICKUPSPIKE1_LAUNCHPOSE:
-
+                follower.setMaxPowerScaling(1);
                 if (!pathStarted) {
-                    follower.setMaxPowerScaling(1);
+
                     follower.followPath(endPickupSpike1_launchPose, true);
                     pathStarted = true;
                 }
@@ -380,8 +391,9 @@ public class SampleAutoPath extends OpMode{
                 break;
 
             case STARTPICKUPSPIKE2_ENDPICKUPSPIKE2:
+                follower.setMaxPowerScaling(0.35);
                 if (!pathStarted) {
-                    follower.setMaxPowerScaling(0.35);
+
                     follower.followPath(startPickupSpike2_EndPickupSpike2, true);
                     pathStarted = true;
                 }
@@ -393,8 +405,9 @@ public class SampleAutoPath extends OpMode{
                 break;
 
             case ENDPICKUPSPIKE2_LAUNCHPOSE:
+                follower.setMaxPowerScaling(1);
                 if (!pathStarted) {
-                    follower.setMaxPowerScaling(1);
+
                     follower.followPath(endPickupSpike2_LaunchPose, true);
                     pathStarted = true;
                 }
@@ -421,27 +434,30 @@ public class SampleAutoPath extends OpMode{
                 break;
 
             case STARTPICKUPSPIKE3_ENDPICKUPSPIKE3:
+                follower.setMaxPowerScaling(0.35);
                 if (!pathStarted) {
-                    follower.setMaxPowerScaling(0.35);
+
                     follower.followPath(startPickupSpike3_EndPickupSPike3, true);
                     pathStarted = true;
                 }
 
                 if (!follower.isBusy()) {
-                    setPathState(PathState.ENDPICKUPSPIKE3_LEAVELAUNCH);
+                    setPathState(PathState.ENDPICKUPSPIKE3_ENDPOSE);
                     pathStarted = false;
                 }
                 break;
 
-            case ENDPICKUPSPIKE3_LEAVELAUNCH:
+            case ENDPICKUPSPIKE3_ENDPOSE:
+                follower.setMaxPowerScaling(1);
+                indexer.setPower(0);
                 if (!pathStarted) {
-                    follower.setMaxPowerScaling(1);
-                    follower.followPath(endPickupSpike3_LeaveLaunch, true);
+
+                    follower.followPath(endPickupSpike3_endPose, true);
                     pathStarted = true;
                 }
 
                 // Launch automatically when at launchPose (if needed)
-                LaunchArtifacts(leaveLaunch);
+                //LaunchArtifacts(endPose);
 
                 if (!follower.isBusy() && launchComplete()) {
                     pathStarted = false; // autonomous complete
