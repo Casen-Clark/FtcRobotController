@@ -240,7 +240,7 @@ public class BlueAuto extends OpMode{
     private final Pose startPickupSpike2 = new Pose(42.06956521739129, 58.06956521739131, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
     private final Pose endPickupSpike2 = new Pose(13.6868725868725965, 57.16521739130434, Math.toRadians(0));//PICKUP 2ND SPIKE
     private final Pose startPickupSpike3 = new Pose(40.66086956521737, 34.8782608695652, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike3 = new Pose(17.686872586872596, 34.42857142857139, Math.toRadians(0));//PICKUP 2ND SPIKE
+    private final Pose endPickupSpike3 = new Pose(13.686872586872596, 34.42857142857139, Math.toRadians(0));//PICKUP 2ND SPIKE
     private final Pose endPose = new Pose(30.99961389961389, 71.56756756756754, Math.toRadians(90));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
 
     private PathChain
