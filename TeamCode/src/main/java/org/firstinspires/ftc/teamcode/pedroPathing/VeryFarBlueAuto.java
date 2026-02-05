@@ -4,9 +4,9 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 //PATHING STUFF - 185
 
 @Autonomous
-public class BlueAuto extends OpMode{
+public class VeryFarBlueAuto extends OpMode{
 
     //==========Motor Stuffs=========\\
     DcMotorEx Launcher;
@@ -67,8 +67,8 @@ public class BlueAuto extends OpMode{
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-                Launcher.setVelocityPIDFCoefficients(10, 0, 0, 14);
-                Launcher2.setVelocityPIDFCoefficients(10,0 ,0 , 14);
+                Launcher.setVelocityPIDFCoefficients(12, 0, 0, 16);
+                Launcher2.setVelocityPIDFCoefficients(12,0 ,0 , 16);
 
     }
 
@@ -101,14 +101,20 @@ public class BlueAuto extends OpMode{
                 break;
 
             case WAIT_FOR_FLYWHEEL:
+                stopIntake();
                 startFlywheel();
+
                 if (flywheelAtSpeed()) {
                     launcherState = LauncherState.OPEN_GATE;
                     launcherTimer.resetTimer();
+                    while(launcherTimer.getElapsedTimeSeconds()>0.9){
+
+                    }
                 }
                 break;
 
             case OPEN_GATE:
+
                 forkservo.setPosition(0.9);
                 forkservo2.setPosition(0.6);
                 if (launcherTimer.getElapsedTimeSeconds() > 0.5) {
@@ -118,8 +124,8 @@ public class BlueAuto extends OpMode{
                 break;
 
             case FEEDING:
-                indexer.setPower(1);
-                if (launcherTimer.getElapsedTimeSeconds() > 2.0) {
+                startIntake();
+                if (launcherTimer.getElapsedTimeSeconds() > 3.1) {
                     indexer.setPower(0);
                     launcherState = LauncherState.CLOSING;
                 }
@@ -143,8 +149,8 @@ public class BlueAuto extends OpMode{
     }
 
     void startFlywheel() {
-        Launcher.setVelocity(1190);
-        Launcher2.setVelocity(1190);
+        Launcher.setVelocity(1426);
+        Launcher2.setVelocity(1426);
     }
 
     void stopFlywheel() {
@@ -153,8 +159,8 @@ public class BlueAuto extends OpMode{
     }
 
     boolean flywheelAtSpeed() {
-        return Math.abs(Launcher.getVelocity() - 1190) < 50
-                && Math.abs(Launcher2.getVelocity() - 1190) < 50;
+        return Math.abs(Launcher.getVelocity() - 1426) < 50
+                && Math.abs(Launcher2.getVelocity() - 1426) < 50;
     }
 
     boolean launchComplete() {
@@ -173,9 +179,20 @@ public class BlueAuto extends OpMode{
     //----------------Intake Logic----------------------------\\
 
     public void startIntake() {
-        IntakeMotor.setVelocity(600);
+        LeftBandintake.setPower(1);
+        RightBandintake.setPower(1);
+        RightIntake.setPower(1);
+        LeftIntake.setPower(1);
+        indexer.setPower(1);
+        IntakeMotor.setVelocity(900);
         LeftIntake.setPower(1);
         RightIntake.setPower(1);
+    }
+    void stopIntake(){
+        indexer.setPower(0);
+        //IntakeMotor.setVelocity(0);
+        //LeftIntake.setPower(0);
+        //RightIntake.setPower(0);
     }
 
     void updateIntake() {
@@ -190,8 +207,8 @@ public class BlueAuto extends OpMode{
         LAUNCHPOSE_STARTPICKUPSPIKE3,
         STARTPICKUPSPIKE3_ENDPICKUPSPIKE3,
         E
-        */
-        boolean intakeActive = pathState == PathState.STARTPOSE_LAUNCHPOSE || pathState == PathState.ENDPICKUPSPIKE3_ENDPOSE;
+
+        boolean intakeActive = pathState == PathState.STARTPOSE_LAUNCHPOSE || pathState == PathState.LAUNCHPOSE_LEAVE;
 
         if (!intakeActive) {
             // Turn on intake motors
@@ -210,7 +227,7 @@ public class BlueAuto extends OpMode{
             LeftBandintake.setPower(0);
             RightBandintake.setPower(0);
 
-        }
+        }*/
     }
 
 
@@ -223,37 +240,34 @@ public class BlueAuto extends OpMode{
         LAUNCHPOSE_STARTPICKUPSPIKE1,
         STARTPICKUPSPIKE1_ENDPICKUPSPIKE1,
         ENDPICKUPSPIKE1_LAUNCHPOSE,
-        LAUNCHPOSE_STARTPICKUPSPIKE2,
-        STARTPICKUPSPIKE2_ENDPICKUPSPIKE2,
-        ENDPICKUPSPIKE2_LAUNCHPOSE,
-        LAUNCHPOSE_STARTPICKUPSPIKE3,
-        STARTPICKUPSPIKE3_ENDPICKUPSPIKE3,
-        ENDPICKUPSPIKE3_ENDPOSE
+        LAUNCHPOSE_STARTPICKUPDEPOT,
+        STARTPICKUPDEPOT_ENDPICKUPDEPOT,
+        ENDPICKUPDEPOT_LAUNCHPOSE,
+        LAUNCHPOSE_LEAVE,
+
     }
 
     PathState pathState;
+//[, , , , , , , ]
+    private final Pose startPose = new Pose(47.475, 8.185, Math.toRadians(90));//START POSE
 
-    private final Pose startPose = new Pose(21.22077922077922, 121.84415584415584, Math.toRadians(135));//START POSE
-    private final Pose launchPose = new Pose(55.37662337662337, 88.0909090909091, Math.toRadians(135));
-    private final Pose startPickupSpike1 = new Pose(45.97258687258688, 82.68725868, Math.toRadians(0));//MOVE TO PICKUP 1ST SPIKE
-    private final Pose endPickupSpike1 = new Pose(17.470656370656375, 82.68725868, Math.toRadians(0));//PICKUP 1ST SPIKE
-    private final Pose startPickupSpike2 = new Pose(42.06956521739129, 58.06956521739131, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike2 = new Pose(13.6868725868725965, 57.16521739130434, Math.toRadians(0));//PICKUP 2ND SPIKE
-    private final Pose startPickupSpike3 = new Pose(40.66086956521737, 34.8782608695652, Math.toRadians(0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike3 = new Pose(13.686872586872596, 34.42857142857139, Math.toRadians(0));//PICKUP 2ND SPIKE
-    private final Pose endPose = new Pose(30.99961389961389, 71.56756756756754, Math.toRadians(90));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
+    private final Pose startPickupSpike1 = new Pose(47.290, 35.259, Math.toRadians(0));
+    private final Pose endPickupSpike1 = new Pose(9.653, 35.251, Math.toRadians(0));//MOVE TO PICKUP 1ST SPIKE
+    private final Pose launchPose = new Pose(56.571, 13.371, Math.toRadians(113));//PICKUP 1ST SPIKE
+    private final Pose startPickupDepot = new Pose(9.112, 28.432, Math.toRadians(85));//MOVE TO PICKUP 2ND SPIKE
+    private final Pose endPickupDepot = new Pose(12.440, 9.151, Math.toRadians(85));//PICKUP 2ND SPIKE
+    private final Pose leave = new Pose(32.938, 11.158, Math.toRadians(112));//MOVE TO PICKUP 2ND SPIKE
+
 
     private PathChain
             startPose_LaunchPose,
             launchPose_StartPickupSpike1,
             startPickupSpike1_EndPickupSpike1,
             endPickupSpike1_launchPose,
-            launchPose_StartPickupSpike2,
-            startPickupSpike2_EndPickupSpike2,
-            endPickupSpike2_LaunchPose,
-            launchPose_StartPickupSPike3,
-            startPickupSpike3_EndPickupSPike3,
-            endPickupSpike3_endPose;
+            launchPose_StartPickupDepot,
+            startPickupDepot_EndPickupDepot,
+            endPickupDepot_LaunchPose,
+            launchPose_Leave;
 
     public void buildPaths() {
 
@@ -282,39 +296,27 @@ public class BlueAuto extends OpMode{
                 .build();
 
         // Move to pickup second spike mark
-        launchPose_StartPickupSpike2 = follower.pathBuilder()
-                .addPath(new BezierLine(launchPose, startPickupSpike2))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), startPickupSpike2.getHeading())
+        launchPose_StartPickupDepot = follower.pathBuilder()
+                .addPath(new BezierLine(launchPose, startPickupDepot))
+                .setLinearHeadingInterpolation(launchPose.getHeading(), startPickupDepot.getHeading())
                 .build();
 
         // Pickup second spike mark
-        startPickupSpike2_EndPickupSpike2 = follower.pathBuilder()
-                .addPath(new BezierLine(startPickupSpike2, endPickupSpike2))
-                .setLinearHeadingInterpolation(startPickupSpike2.getHeading(), endPickupSpike2.getHeading())
+        startPickupDepot_EndPickupDepot = follower.pathBuilder()
+                .addPath(new BezierLine(startPickupDepot, endPickupDepot))
+                .setLinearHeadingInterpolation(startPickupDepot.getHeading(), endPickupDepot.getHeading())
                 .build();
 
         // Move back to launch pose
-        endPickupSpike2_LaunchPose = follower.pathBuilder()
-                .addPath(new BezierLine(endPickupSpike2, launchPose))
-                .setLinearHeadingInterpolation(endPickupSpike2.getHeading(), launchPose.getHeading())
+        endPickupDepot_LaunchPose = follower.pathBuilder()
+                .addPath(new BezierLine(endPickupDepot, launchPose))
+                .setLinearHeadingInterpolation(endPickupDepot.getHeading(), launchPose.getHeading())
                 .build();
 
         // Move to pickup third spike mark
-        launchPose_StartPickupSPike3 = follower.pathBuilder()
-                .addPath(new BezierLine(launchPose, startPickupSpike3))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), startPickupSpike3.getHeading())
-                .build();
-
-        // Pickup third spike mark
-        startPickupSpike3_EndPickupSPike3 = follower.pathBuilder()
-                .addPath(new BezierLine(startPickupSpike3, endPickupSpike3))
-                .setLinearHeadingInterpolation(startPickupSpike3.getHeading(), endPickupSpike3.getHeading())
-                .build();
-
-        // Move to final launch and end pose
-        endPickupSpike3_endPose = follower.pathBuilder()
-                .addPath(new BezierLine(endPickupSpike3, endPose))
-                .setLinearHeadingInterpolation(endPickupSpike3.getHeading(), endPose.getHeading())
+        launchPose_Leave = follower.pathBuilder()
+                .addPath(new BezierLine(launchPose, leave))
+                .setLinearHeadingInterpolation(launchPose.getHeading(), leave.getHeading())
                 .build();
     }
 
@@ -335,6 +337,7 @@ public class BlueAuto extends OpMode{
                 // Move to next path only when both path and launcher complete
                 if (!follower.isBusy() && launchComplete()) {
                     setPathState(PathState.LAUNCHPOSE_STARTPICKUPSPIKE1);
+                    startIntake();
                     pathStarted = false;
                 }
                 break;
@@ -377,42 +380,42 @@ public class BlueAuto extends OpMode{
                 LaunchArtifacts(launchPose);
 
                 if (!follower.isBusy() && launchComplete()) {
-                    setPathState(PathState.LAUNCHPOSE_STARTPICKUPSPIKE2);
+                    setPathState(PathState.LAUNCHPOSE_STARTPICKUPDEPOT);
                     pathStarted = false;
                 }
                 break;
 
-            case LAUNCHPOSE_STARTPICKUPSPIKE2:
+            case LAUNCHPOSE_STARTPICKUPDEPOT:
                 if (!pathStarted) {
-                    follower.followPath(launchPose_StartPickupSpike2, true);
+                    follower.followPath(launchPose_StartPickupDepot, true);
                     pathStarted = true;
                 }
 
                 if (!follower.isBusy()) {
-                    setPathState(PathState.STARTPICKUPSPIKE2_ENDPICKUPSPIKE2);
+                    setPathState(PathState.STARTPICKUPDEPOT_ENDPICKUPDEPOT);
                     pathStarted = false;
                 }
                 break;
 
-            case STARTPICKUPSPIKE2_ENDPICKUPSPIKE2:
+            case STARTPICKUPDEPOT_ENDPICKUPDEPOT:
                 follower.setMaxPowerScaling(0.35);
                 if (!pathStarted) {
 
-                    follower.followPath(startPickupSpike2_EndPickupSpike2, true);
+                    follower.followPath(startPickupDepot_EndPickupDepot, true);
                     pathStarted = true;
                 }
 
                 if (!follower.isBusy()) {
-                    setPathState(PathState.ENDPICKUPSPIKE2_LAUNCHPOSE);
+                    setPathState(PathState.ENDPICKUPDEPOT_LAUNCHPOSE);
                     pathStarted = false;
                 }
                 break;
 
-            case ENDPICKUPSPIKE2_LAUNCHPOSE:
+            case ENDPICKUPDEPOT_LAUNCHPOSE:
                 follower.setMaxPowerScaling(1);
                 if (!pathStarted) {
 
-                    follower.followPath(endPickupSpike2_LaunchPose, true);
+                    follower.followPath(endPickupDepot_LaunchPose, true);
                     pathStarted = true;
                 }
 
@@ -420,53 +423,23 @@ public class BlueAuto extends OpMode{
                 LaunchArtifacts(launchPose);
 
                 if (!follower.isBusy() && launchComplete()) {
-                    setPathState(PathState.LAUNCHPOSE_STARTPICKUPSPIKE3);
+                    setPathState(PathState.LAUNCHPOSE_LEAVE);
                     pathStarted = false;
                 }
                 break;
 
-            case LAUNCHPOSE_STARTPICKUPSPIKE3:
+            case LAUNCHPOSE_LEAVE:
                 if (!pathStarted) {
-                    follower.followPath(launchPose_StartPickupSPike3, true);
+                    follower.followPath(launchPose_Leave, true);
                     pathStarted = true;
                 }
 
                 if (!follower.isBusy()) {
-                    setPathState(PathState.STARTPICKUPSPIKE3_ENDPICKUPSPIKE3);
                     pathStarted = false;
+                    requestOpModeStop();
                 }
                 break;
 
-            case STARTPICKUPSPIKE3_ENDPICKUPSPIKE3:
-                follower.setMaxPowerScaling(0.35);
-                if (!pathStarted) {
-
-                    follower.followPath(startPickupSpike3_EndPickupSPike3, true);
-                    pathStarted = true;
-                }
-
-                if (!follower.isBusy()) {
-                    setPathState(PathState.ENDPICKUPSPIKE3_ENDPOSE);
-                    pathStarted = false;
-                }
-                break;
-
-            case ENDPICKUPSPIKE3_ENDPOSE:
-                follower.setMaxPowerScaling(1);
-                indexer.setPower(0);
-                if (!pathStarted) {
-
-                    follower.followPath(endPickupSpike3_endPose, true);
-                    pathStarted = true;
-                }
-
-                // Launch automatically when at launchPose (if needed)
-                //LaunchArtifacts(endPose);
-
-                if (!follower.isBusy() && launchComplete()) {
-                    pathStarted = false; // autonomous complete
-                }
-                break;
 
             default:
                 telemetry.addLine("No State Commanded");
@@ -495,6 +468,8 @@ public class BlueAuto extends OpMode{
     public void start() {
         opModeTimer.resetTimer();
         setPathState(pathState);
+        LeftBandintake.setPower(1);
+        RightBandintake.setPower(1);
     }
 
     @Override

@@ -92,7 +92,7 @@ public class RedAuto extends OpMode{
     }
     // Launch tolerance
     double POSITION_TOLERANCE = 2.0; // +/- in inches
-    double HEADING_TOLERANCE = Math.toRadians(3); // +/- in degrees
+    double HEADING_TOLERANCE = Math.toRadians(5); // +/- in degrees
 
     void updateLauncher() {
         switch (launcherState) {
