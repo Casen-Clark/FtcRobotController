@@ -67,8 +67,8 @@ public class BlueAuto extends OpMode{
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-                Launcher.setVelocityPIDFCoefficients(10, 0, 0, 14);
-                Launcher2.setVelocityPIDFCoefficients(10,0 ,0 , 14);
+                Launcher.setVelocityPIDFCoefficients(20, 0, 0, 12.6);
+                Launcher2.setVelocityPIDFCoefficients(20,0 ,0 , 12.6);
 
     }
 
@@ -78,6 +78,7 @@ public class BlueAuto extends OpMode{
 
     void LaunchArtifacts(Pose targetPose) {
         // Start launcher if robot is within tolerance
+        telemetry.addLine("thinking about launching");
         if (launcherState == LauncherState.IDLE) {
             Pose current = follower.getPose();
             double dx = Math.abs(current.getX() - targetPose.getX());
@@ -85,6 +86,7 @@ public class BlueAuto extends OpMode{
             double dHeading = Math.abs(current.getHeading() - targetPose.getHeading());
 
             if (dx < POSITION_TOLERANCE && dy < POSITION_TOLERANCE && dHeading < HEADING_TOLERANCE) {
+                telemetry.addLine("Im launching now I decided");
                 launcherState = LauncherState.WAIT_FOR_FLYWHEEL;
                 launcherTimer.resetTimer();
             }
