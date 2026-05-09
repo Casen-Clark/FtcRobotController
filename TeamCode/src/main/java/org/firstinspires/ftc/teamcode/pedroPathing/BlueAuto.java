@@ -67,8 +67,8 @@ public class BlueAuto extends OpMode{
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-                Launcher.setVelocityPIDFCoefficients(20, 0, 0, 12.6);
-                Launcher2.setVelocityPIDFCoefficients(20,0 ,0 , 12.6);
+                Launcher.setVelocityPIDFCoefficients(100, 0, 0, 12.6);
+                Launcher2.setVelocityPIDFCoefficients(100,0 ,0 , 12.6); //p20 f12.6
 
     }
 
@@ -121,7 +121,7 @@ public class BlueAuto extends OpMode{
 
             case FEEDING:
                 indexer.setPower(1);
-                if (launcherTimer.getElapsedTimeSeconds() > 2.0) {
+                if (launcherTimer.getElapsedTimeSeconds() > 1.0) {
                     indexer.setPower(0);
                     launcherState = LauncherState.CLOSING;
                 }
