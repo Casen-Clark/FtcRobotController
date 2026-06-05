@@ -67,8 +67,8 @@ public class RedAuto extends OpMode{
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-                Launcher.setVelocityPIDFCoefficients(10, 0, 0, 14);
-                Launcher2.setVelocityPIDFCoefficients(10, 0, 0, 14);
+                Launcher.setVelocityPIDFCoefficients(100, 0, 0, 12.6);
+                Launcher2.setVelocityPIDFCoefficients(100,0 ,0 , 12.6); //p20 f12.6
 
     }
 
@@ -78,6 +78,7 @@ public class RedAuto extends OpMode{
 
     void LaunchArtifacts(Pose targetPose) {
         // Start launcher if robot is within tolerance
+        telemetry.addLine("thinking about launching");
         if (launcherState == LauncherState.IDLE) {
             Pose current = follower.getPose();
             double dx = Math.abs(current.getX() - targetPose.getX());
@@ -85,6 +86,7 @@ public class RedAuto extends OpMode{
             double dHeading = Math.abs(current.getHeading() - targetPose.getHeading());
 
             if (dx < POSITION_TOLERANCE && dy < POSITION_TOLERANCE && dHeading < HEADING_TOLERANCE) {
+                telemetry.addLine("Im launching now I decided");
                 launcherState = LauncherState.WAIT_FOR_FLYWHEEL;
                 launcherTimer.resetTimer();
             }
@@ -119,7 +121,7 @@ public class RedAuto extends OpMode{
 
             case FEEDING:
                 indexer.setPower(1);
-                if (launcherTimer.getElapsedTimeSeconds() > 2.0) {
+                if (launcherTimer.getElapsedTimeSeconds() > 1.0) {
                     indexer.setPower(0);
                     launcherState = LauncherState.CLOSING;
                 }
@@ -232,34 +234,16 @@ public class RedAuto extends OpMode{
     }
 
     PathState pathState;
-
-    private final Pose startPose =
-            new Pose(144 - 21.22077922077922, 121.84415584415584, Math.toRadians(45));
-
-    private final Pose launchPose =
-            new Pose(144 - 55.37662337662337, 88.0909090909091, Math.toRadians(45));
-
-    private final Pose startPickupSpike1 =
-            new Pose(144 - 45.97258687258688, 82.68725868, Math.toRadians(180));
-
-    private final Pose endPickupSpike1 =
-            new Pose(144 - 17.470656370656375, 82.68725868, Math.toRadians(180));
-
-    private final Pose startPickupSpike2 =
-            new Pose(144 - 42.06956521739129, 58.06956521739131, Math.toRadians(180));
-
-    private final Pose endPickupSpike2 =
-            new Pose(144 - 13.6868725868725965, 57.16521739130434, Math.toRadians(180));
-
-    private final Pose startPickupSpike3 =
-            new Pose(144 - 40.66086956521737, 34.8782608695652, Math.toRadians(180));
-
-    private final Pose endPickupSpike3 =
-            new Pose(144 - 13.686872586872596, 34.42857142857139, Math.toRadians(180));
-
-    private final Pose endPose =
-            new Pose(144 - 30.99961389961389, 71.56756756756754, Math.toRadians(90));
-
+// all x positions and headings are from the blue auto but subtracted from total width of the field and rotated 180 degrees
+    private final Pose startPose = new Pose(144-21.22077922077922, 121.84415584415584, Math.toRadians(180-135));//START POSE
+    private final Pose launchPose = new Pose(144-55.37662337662337, 88.0909090909091, Math.toRadians(180-135));
+    private final Pose startPickupSpike1 = new Pose(144-45.97258687258688, 82.68725868, Math.toRadians(180-0));//MOVE TO PICKUP 1ST SPIKE
+    private final Pose endPickupSpike1 = new Pose(144-17.470656370656375, 82.68725868, Math.toRadians(180-0));//PICKUP 1ST SPIKE
+    private final Pose startPickupSpike2 = new Pose(144-42.06956521739129, 58.06956521739131, Math.toRadians(180-0));//MOVE TO PICKUP 2ND SPIKE
+    private final Pose endPickupSpike2 = new Pose(144-13.6868725868725965, 57.16521739130434, Math.toRadians(180-0));//PICKUP 2ND SPIKE
+    private final Pose startPickupSpike3 = new Pose(144-40.66086956521737, 34.8782608695652, Math.toRadians(180-0));//MOVE TO PICKUP 2ND SPIKE
+    private final Pose endPickupSpike3 = new Pose(144-13.686872586872596, 34.42857142857139, Math.toRadians(180-0));//PICKUP 2ND SPIKE
+    private final Pose endPose = new Pose(144-30.99961389961389, 71.56756756756754, Math.toRadians(180-90));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
 
     private PathChain
             startPose_LaunchPose,
