@@ -184,7 +184,7 @@ public class VeryFarBlueAuto extends OpMode{
         RightIntake.setPower(1);
         LeftIntake.setPower(1);
         indexer.setPower(1);
-        IntakeMotor.setVelocity(900);
+        IntakeMotor.setPower(1);
         LeftIntake.setPower(1);
         RightIntake.setPower(1);
     }

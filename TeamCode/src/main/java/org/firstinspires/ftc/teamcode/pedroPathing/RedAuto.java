@@ -197,7 +197,7 @@ public class RedAuto extends OpMode{
 
         if (!intakeActive) {
             // Turn on intake motors
-            IntakeMotor.setVelocity(900);
+            IntakeMotor.setPower(1);
             indexer.setPower(1);
             LeftIntake.setPower(1);
             RightIntake.setPower(1);
