@@ -65,10 +65,10 @@ public class RedAuto extends OpMode{
         //Motors zero power
         Launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-                Launcher.setVelocityPIDFCoefficients(100, 0, 0, 12.6);
-                Launcher2.setVelocityPIDFCoefficients(100,0 ,0 , 12.6); //p20 f12.6
+                Launcher.setVelocityPIDFCoefficients(100, 0, 0, 9);
+                Launcher2.setVelocityPIDFCoefficients(100,0 ,0 , 9); //p100 f12.6
 
     }
 
@@ -93,8 +93,8 @@ public class RedAuto extends OpMode{
         }
     }
     // Launch tolerance
-    double POSITION_TOLERANCE = 2.0; // +/- in inches
-    double HEADING_TOLERANCE = Math.toRadians(5); // +/- in degrees
+    double POSITION_TOLERANCE = 2.0; // +/- in inches //2'
+    double HEADING_TOLERANCE = Math.toRadians(5); // +/- in degrees //5
 
     void updateLauncher() {
         switch (launcherState) {
@@ -120,9 +120,7 @@ public class RedAuto extends OpMode{
                 break;
 
             case FEEDING:
-                indexer.setPower(1);
                 if (launcherTimer.getElapsedTimeSeconds() > 1.0) {
-                    indexer.setPower(0);
                     launcherState = LauncherState.CLOSING;
                 }
                 break;
@@ -145,8 +143,8 @@ public class RedAuto extends OpMode{
     }
 
     void startFlywheel() {
-        Launcher.setVelocity(1190);
-        Launcher2.setVelocity(1190);
+        Launcher.setVelocity(1170);
+        Launcher2.setVelocity(1170);
     }
 
     void stopFlywheel() {
@@ -174,47 +172,37 @@ public class RedAuto extends OpMode{
 
     //----------------Intake Logic----------------------------\\
 
+    boolean isIntakingState() {
+        return pathState == PathState.LAUNCHPOSE_STARTPICKUPSPIKE1 ||
+                pathState == PathState.STARTPICKUPSPIKE1_ENDPICKUPSPIKE1 ||
+                pathState == PathState.LAUNCHPOSE_STARTPICKUPSPIKE2 ||
+                pathState == PathState.STARTPICKUPSPIKE2_ENDPICKUPSPIKE2 ||
+                pathState == PathState.LAUNCHPOSE_STARTPICKUPSPIKE3 ||
+                pathState == PathState.STARTPICKUPSPIKE3_ENDPICKUPSPIKE3;
+    }
+
     public void startIntake() {
-        IntakeMotor.setVelocity(600);
+        IntakeMotor.setPower(1);
         LeftIntake.setPower(1);
         RightIntake.setPower(1);
     }
 
     void updateIntake() {
-        /*
-        ,
-        LAUNCHPOSE_STARTPICKUPSPIKE1,
-        STARTPICKUPSPIKE1_ENDPICKUPSPIKE1,
-        ENDPICKUPSPIKE1_LAUNCHPOSE,
-        LAUNCHPOSE_STARTPICKUPSPIKE2,
-        STARTPICKUPSPIKE2_ENDPICKUPSPIKE2,
-        ENDPICKUPSPIKE2_LAUNCHPOSE,
-        LAUNCHPOSE_STARTPICKUPSPIKE3,
-        STARTPICKUPSPIKE3_ENDPICKUPSPIKE3,
-        E
-        */
-        boolean intakeActive = pathState == PathState.STARTPOSE_LAUNCHPOSE || pathState == PathState.ENDPICKUPSPIKE3_ENDPOSE;
 
-        if (!intakeActive) {
-            // Turn on intake motors
+        if (isIntakingState()) {
             IntakeMotor.setPower(1);
-            indexer.setPower(1);
             LeftIntake.setPower(1);
             RightIntake.setPower(1);
             LeftBandintake.setPower(1);
             RightBandintake.setPower(1);
         } else {
-            // Stop intake motors
             IntakeMotor.setPower(0);
-
             LeftIntake.setPower(0);
             RightIntake.setPower(0);
             LeftBandintake.setPower(0);
             RightBandintake.setPower(0);
-
         }
     }
-
 
     private Follower follower;
     private Timer pathTimer, opModeTimer;
@@ -238,11 +226,11 @@ public class RedAuto extends OpMode{
     private final Pose startPose = new Pose(144-21.22077922077922, 121.84415584415584, Math.toRadians(180-135));//START POSE
     private final Pose launchPose = new Pose(144-55.37662337662337, 88.0909090909091, Math.toRadians(180-135));
     private final Pose startPickupSpike1 = new Pose(144-45.97258687258688, 82.68725868, Math.toRadians(180-0));//MOVE TO PICKUP 1ST SPIKE
-    private final Pose endPickupSpike1 = new Pose(144-17.470656370656375, 82.68725868, Math.toRadians(180-0));//PICKUP 1ST SPIKE
+    private final Pose endPickupSpike1 = new Pose(144-23.470656370656375, 82.68725868, Math.toRadians(180-0));//PICKUP 1ST SPIKE
     private final Pose startPickupSpike2 = new Pose(144-42.06956521739129, 58.06956521739131, Math.toRadians(180-0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike2 = new Pose(144-13.6868725868725965, 57.16521739130434, Math.toRadians(180-0));//PICKUP 2ND SPIKE
+    private final Pose endPickupSpike2 = new Pose(144-23.6868725868725965, 57.16521739130434, Math.toRadians(180-0));//PICKUP 2ND SPIKE
     private final Pose startPickupSpike3 = new Pose(144-40.66086956521737, 34.8782608695652, Math.toRadians(180-0));//MOVE TO PICKUP 2ND SPIKE
-    private final Pose endPickupSpike3 = new Pose(144-13.686872586872596, 34.42857142857139, Math.toRadians(180-0));//PICKUP 2ND SPIKE
+    private final Pose endPickupSpike3 = new Pose(144-23.686872586872596, 34.42857142857139, Math.toRadians(180-0));//PICKUP 2ND SPIKE
     private final Pose endPose = new Pose(144-30.99961389961389, 71.56756756756754, Math.toRadians(180-90));//LAUNCH FINAL 3 ARTIFACTS + LEAVE
 
     private PathChain
@@ -455,7 +443,6 @@ public class RedAuto extends OpMode{
 
             case ENDPICKUPSPIKE3_ENDPOSE:
                 follower.setMaxPowerScaling(1);
-                indexer.setPower(0);
                 if (!pathStarted) {
 
                     follower.followPath(endPickupSpike3_endPose, true);
@@ -514,5 +501,14 @@ public class RedAuto extends OpMode{
         telemetry.addData("Launcher State", launcherState);
         telemetry.addData("heading error: ", follower.getHeadingError());
         telemetry.addData("drive error: ", follower.getDriveError());
+
+        boolean feeding =
+                launcherState == LauncherState.FEEDING;
+
+        if (feeding || isIntakingState()) {
+            indexer.setPower(1);
+        } else {
+            indexer.setPower(0);
+        }
     }
 }

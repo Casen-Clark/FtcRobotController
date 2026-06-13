@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 //PATHING STUFF - 185
 
 @Autonomous
-public class VeryFarRedAuto extends OpMode{
+public class VeryFarRedAuto extends OpMode {
 
     //==========Motor Stuffs=========\\
     DcMotorEx Launcher;
@@ -38,7 +38,7 @@ public class VeryFarRedAuto extends OpMode{
         //Motors init
         Launcher = hardwareMap.get(DcMotorEx.class, "Launcher");
         Launcher2 = hardwareMap.get(DcMotorEx.class, "Launcher2");
-        indexer = hardwareMap.get(DcMotorEx.class , "indexer");
+        indexer = hardwareMap.get(DcMotorEx.class, "indexer");
         IntakeMotor = hardwareMap.get(DcMotorEx.class, "IntakeMotor");
         forkservo = hardwareMap.get(Servo.class, "forkservo");
         forkservo2 = hardwareMap.get(Servo.class, "forkservo2");
@@ -65,10 +65,10 @@ public class VeryFarRedAuto extends OpMode{
         //Motors zero power
         Launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-                Launcher.setVelocityPIDFCoefficients(12, 0, 0, 16);
-                Launcher2.setVelocityPIDFCoefficients(12,0 ,0 , 16);
+        Launcher.setVelocityPIDFCoefficients(160, 0, 0, 18);
+        Launcher2.setVelocityPIDFCoefficients(160, 0, 0, 18); //p100 f12.6
 
     }
 
@@ -78,6 +78,7 @@ public class VeryFarRedAuto extends OpMode{
 
     void LaunchArtifacts(Pose targetPose) {
         // Start launcher if robot is within tolerance
+        telemetry.addLine("thinking about launching");
         if (launcherState == LauncherState.IDLE) {
             Pose current = follower.getPose();
             double dx = Math.abs(current.getX() - targetPose.getX());
@@ -85,14 +86,16 @@ public class VeryFarRedAuto extends OpMode{
             double dHeading = Math.abs(current.getHeading() - targetPose.getHeading());
 
             if (dx < POSITION_TOLERANCE && dy < POSITION_TOLERANCE && dHeading < HEADING_TOLERANCE) {
+                telemetry.addLine("Im launching now I decided");
                 launcherState = LauncherState.WAIT_FOR_FLYWHEEL;
                 launcherTimer.resetTimer();
             }
         }
     }
+
     // Launch tolerance
-    double POSITION_TOLERANCE = 2.0; // +/- in inches
-    double HEADING_TOLERANCE = Math.toRadians(5); // +/- in degrees
+    double POSITION_TOLERANCE = 2.0; // +/- in inches //2'
+    double HEADING_TOLERANCE = Math.toRadians(5); // +/- in degrees //5
 
     void updateLauncher() {
         switch (launcherState) {
@@ -101,20 +104,14 @@ public class VeryFarRedAuto extends OpMode{
                 break;
 
             case WAIT_FOR_FLYWHEEL:
-                stopIntake();
                 startFlywheel();
-
                 if (flywheelAtSpeed()) {
                     launcherState = LauncherState.OPEN_GATE;
                     launcherTimer.resetTimer();
-                    while(launcherTimer.getElapsedTimeSeconds()>0.9){
-
-                    }
                 }
                 break;
 
             case OPEN_GATE:
-
                 forkservo.setPosition(0.9);
                 forkservo2.setPosition(0.6);
                 if (launcherTimer.getElapsedTimeSeconds() > 0.5) {
@@ -124,9 +121,7 @@ public class VeryFarRedAuto extends OpMode{
                 break;
 
             case FEEDING:
-                startIntake();
-                if (launcherTimer.getElapsedTimeSeconds() > 3.1) {
-                    indexer.setPower(0);
+                if (launcherTimer.getElapsedTimeSeconds() > 1.0) {
                     launcherState = LauncherState.CLOSING;
                 }
                 break;
@@ -149,8 +144,8 @@ public class VeryFarRedAuto extends OpMode{
     }
 
     void startFlywheel() {
-        Launcher.setVelocity(1426);
-        Launcher2.setVelocity(1426);
+        Launcher.setVelocity(1550);
+        Launcher2.setVelocity(1550);
     }
 
     void stopFlywheel() {
@@ -159,8 +154,8 @@ public class VeryFarRedAuto extends OpMode{
     }
 
     boolean flywheelAtSpeed() {
-        return Math.abs(Launcher.getVelocity() - 1426) < 50
-                && Math.abs(Launcher2.getVelocity() - 1426) < 50;
+        return Math.abs(Launcher.getVelocity() - 1190) < 50
+                && Math.abs(Launcher2.getVelocity() - 1190) < 50;
     }
 
     boolean launchComplete() {
@@ -178,62 +173,39 @@ public class VeryFarRedAuto extends OpMode{
 
     //----------------Intake Logic----------------------------\\
 
-    public void startIntake() {
-        LeftBandintake.setPower(1);
-        RightBandintake.setPower(1);
-        RightIntake.setPower(1);
-        LeftIntake.setPower(1);
-        indexer.setPower(1);
-        IntakeMotor.setVelocity(900);
-        LeftIntake.setPower(1);
-        RightIntake.setPower(1);
+    boolean isIntakingState() {
+        return pathState == PathState.LAUNCHPOSE_STARTPICKUPSPIKE1 ||
+                pathState == PathState.STARTPICKUPSPIKE1_ENDPICKUPSPIKE1 ||
+                pathState == PathState.STARTPICKUPDEPOT_ENDPICKUPDEPOT;
     }
-    void stopIntake(){
-        indexer.setPower(0);
-        //IntakeMotor.setVelocity(0);
-        //LeftIntake.setPower(0);
-        //RightIntake.setPower(0);
+
+    public void startIntake() {
+        IntakeMotor.setPower(1);
+        LeftIntake.setPower(1);
+        RightIntake.setPower(1);
     }
 
     void updateIntake() {
-        /*
-        ,
-        LAUNCHPOSE_STARTPICKUPSPIKE1,
-        STARTPICKUPSPIKE1_ENDPICKUPSPIKE1,
-        ENDPICKUPSPIKE1_LAUNCHPOSE,
-        LAUNCHPOSE_STARTPICKUPSPIKE2,
-        STARTPICKUPSPIKE2_ENDPICKUPSPIKE2,
-        ENDPICKUPSPIKE2_LAUNCHPOSE,
-        LAUNCHPOSE_STARTPICKUPSPIKE3,
-        STARTPICKUPSPIKE3_ENDPICKUPSPIKE3,
-        E
 
-        boolean intakeActive = pathState == PathState.STARTPOSE_LAUNCHPOSE || pathState == PathState.LAUNCHPOSE_LEAVE;
-
-        if (!intakeActive) {
-            // Turn on intake motors
-            IntakeMotor.setVelocity(900);
-            indexer.setPower(1);
+        if (isIntakingState()) {
+            IntakeMotor.setPower(1);
             LeftIntake.setPower(1);
             RightIntake.setPower(1);
             LeftBandintake.setPower(1);
             RightBandintake.setPower(1);
         } else {
-            // Stop intake motors
             IntakeMotor.setPower(0);
-
             LeftIntake.setPower(0);
             RightIntake.setPower(0);
             LeftBandintake.setPower(0);
             RightBandintake.setPower(0);
-
-        }*/
+        }
     }
-
 
     private Follower follower;
     private Timer pathTimer, opModeTimer;
 
+    //=======================================PATHING STUFF========================================\\
     //=======================================PATHING STUFF========================================\\
     public enum PathState {
         STARTPOSE_LAUNCHPOSE,
@@ -245,21 +217,30 @@ public class VeryFarRedAuto extends OpMode{
         ENDPICKUPDEPOT_LAUNCHPOSE,
         LAUNCHPOSE_LEAVE,
 
+
     }
 
+
     PathState pathState;
-//[, , , , , , , ]
-private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
+    //[, , , , , , , ]
+    private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
+
 
     private final Pose startPickupSpike1 = new Pose(96.710, 35.259, Math.toRadians(180));
-    private final Pose endPickupSpike1   = new Pose(134.347, 35.251, Math.toRadians(180));
+    private final Pose endPickupSpike1   = new Pose(124.347, 35.251, Math.toRadians(180));
+
 
     private final Pose launchPose = new Pose(87.429, 13.371, Math.toRadians(67));
+
 
     private final Pose startPickupDepot = new Pose(134.888, 28.432, Math.toRadians(95));
     private final Pose endPickupDepot   = new Pose(131.560, 9.151, Math.toRadians(95));
 
+
     private final Pose leave = new Pose(111.062, 11.158, Math.toRadians(68));
+
+
+
 
 
 
@@ -273,7 +254,9 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
             endPickupDepot_LaunchPose,
             launchPose_Leave;
 
+
     public void buildPaths() {
+
 
         // Move from start to launch pose
         startPose_LaunchPose = follower.pathBuilder()
@@ -281,11 +264,13 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 .setLinearHeadingInterpolation(startPose.getHeading(), launchPose.getHeading())
                 .build();
 
+
         // Move to pickup first spike mark
         launchPose_StartPickupSpike1 = follower.pathBuilder()
                 .addPath(new BezierLine(launchPose, startPickupSpike1))
                 .setLinearHeadingInterpolation(launchPose.getHeading(), startPickupSpike1.getHeading())
                 .build();
+
 
         // Pickup first spike mark
         startPickupSpike1_EndPickupSpike1 = follower.pathBuilder()
@@ -293,11 +278,13 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 .setLinearHeadingInterpolation(startPickupSpike1.getHeading(), endPickupSpike1.getHeading())
                 .build();
 
+
         // Move back to launch pose
         endPickupSpike1_launchPose = follower.pathBuilder()
                 .addPath(new BezierLine(endPickupSpike1, launchPose))
                 .setLinearHeadingInterpolation(endPickupSpike1.getHeading(), launchPose.getHeading())
                 .build();
+
 
         // Move to pickup second spike mark
         launchPose_StartPickupDepot = follower.pathBuilder()
@@ -305,17 +292,20 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 .setLinearHeadingInterpolation(launchPose.getHeading(), startPickupDepot.getHeading())
                 .build();
 
+
         // Pickup second spike mark
         startPickupDepot_EndPickupDepot = follower.pathBuilder()
                 .addPath(new BezierLine(startPickupDepot, endPickupDepot))
                 .setLinearHeadingInterpolation(startPickupDepot.getHeading(), endPickupDepot.getHeading())
                 .build();
 
+
         // Move back to launch pose
         endPickupDepot_LaunchPose = follower.pathBuilder()
                 .addPath(new BezierLine(endPickupDepot, launchPose))
                 .setLinearHeadingInterpolation(endPickupDepot.getHeading(), launchPose.getHeading())
                 .build();
+
 
         // Move to pickup third spike mark
         launchPose_Leave = follower.pathBuilder()
@@ -324,9 +314,11 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 .build();
     }
 
+
     boolean pathStarted = false;
     public void statePathUpdate() {
         switch (pathState) {
+
 
             case STARTPOSE_LAUNCHPOSE:
                 // Start path if not already started
@@ -335,8 +327,10 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                     pathStarted = true;
                 }
 
+
                 // Launch automatically when at launchPose
                 LaunchArtifacts(launchPose);
+
 
                 // Move to next path only when both path and launcher complete
                 if (!follower.isBusy() && launchComplete()) {
@@ -346,11 +340,13 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case LAUNCHPOSE_STARTPICKUPSPIKE1:
                 if (!pathStarted) {
                     follower.followPath(launchPose_StartPickupSpike1, true);
                     pathStarted = true;
                 }
+
 
                 if (!follower.isBusy()) {
                     setPathState(PathState.STARTPICKUPSPIKE1_ENDPICKUPSPIKE1);
@@ -358,13 +354,16 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case STARTPICKUPSPIKE1_ENDPICKUPSPIKE1:
                 follower.setMaxPowerScaling(0.35);
                 if (!pathStarted) {
 
+
                     follower.followPath(startPickupSpike1_EndPickupSpike1, true);
                     pathStarted = true;
                 }
+
 
                 if (!follower.isBusy()) {
                     setPathState(PathState.ENDPICKUPSPIKE1_LAUNCHPOSE);
@@ -372,16 +371,20 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case ENDPICKUPSPIKE1_LAUNCHPOSE:
                 follower.setMaxPowerScaling(1);
                 if (!pathStarted) {
+
 
                     follower.followPath(endPickupSpike1_launchPose, true);
                     pathStarted = true;
                 }
 
+
                 // Automatically launch when at launchPose
                 LaunchArtifacts(launchPose);
+
 
                 if (!follower.isBusy() && launchComplete()) {
                     setPathState(PathState.LAUNCHPOSE_STARTPICKUPDEPOT);
@@ -389,11 +392,13 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case LAUNCHPOSE_STARTPICKUPDEPOT:
                 if (!pathStarted) {
                     follower.followPath(launchPose_StartPickupDepot, true);
                     pathStarted = true;
                 }
+
 
                 if (!follower.isBusy()) {
                     setPathState(PathState.STARTPICKUPDEPOT_ENDPICKUPDEPOT);
@@ -401,13 +406,16 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case STARTPICKUPDEPOT_ENDPICKUPDEPOT:
                 follower.setMaxPowerScaling(0.35);
                 if (!pathStarted) {
 
+
                     follower.followPath(startPickupDepot_EndPickupDepot, true);
                     pathStarted = true;
                 }
+
 
                 if (!follower.isBusy()) {
                     setPathState(PathState.ENDPICKUPDEPOT_LAUNCHPOSE);
@@ -415,16 +423,20 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case ENDPICKUPDEPOT_LAUNCHPOSE:
                 follower.setMaxPowerScaling(1);
                 if (!pathStarted) {
+
 
                     follower.followPath(endPickupDepot_LaunchPose, true);
                     pathStarted = true;
                 }
 
+
                 // Launch automatically when at launchPose
                 LaunchArtifacts(launchPose);
+
 
                 if (!follower.isBusy() && launchComplete()) {
                     setPathState(PathState.LAUNCHPOSE_LEAVE);
@@ -432,11 +444,13 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 }
                 break;
 
+
             case LAUNCHPOSE_LEAVE:
                 if (!pathStarted) {
                     follower.followPath(launchPose_Leave, true);
                     pathStarted = true;
                 }
+
 
                 if (!follower.isBusy()) {
                     pathStarted = false;
@@ -445,11 +459,15 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
                 break;
 
 
+
+
             default:
                 telemetry.addLine("No State Commanded");
                 break;
         }
     }
+
+
 
     public void setPathState(PathState newState) {
         pathState = newState;
@@ -472,8 +490,6 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
     public void start() {
         opModeTimer.resetTimer();
         setPathState(pathState);
-        LeftBandintake.setPower(1);
-        RightBandintake.setPower(1);
     }
 
     @Override
@@ -491,5 +507,14 @@ private final Pose startPose = new Pose(96.525, 8.185, Math.toRadians(90));
         telemetry.addData("Launcher State", launcherState);
         telemetry.addData("heading error: ", follower.getHeadingError());
         telemetry.addData("drive error: ", follower.getDriveError());
+
+        boolean feeding =
+                launcherState == LauncherState.FEEDING;
+
+        if (feeding || isIntakingState()) {
+            indexer.setPower(1);
+        } else {
+            indexer.setPower(0);
+        }
     }
 }
