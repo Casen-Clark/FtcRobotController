@@ -206,7 +206,6 @@ public class VeryFarRedAuto extends OpMode {
     private Timer pathTimer, opModeTimer;
 
     //=======================================PATHING STUFF========================================\\
-    //=======================================PATHING STUFF========================================\\
     public enum PathState {
         STARTPOSE_LAUNCHPOSE,
         LAUNCHPOSE_STARTPICKUPSPIKE1,
